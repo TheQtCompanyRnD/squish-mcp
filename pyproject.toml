@@ -1,0 +1,9 @@
+[project]
+name = "squish-mcp"
+version = "0.1.0"
+description = "Squish GUI testing for AI assistants with MCP"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp[cli]>=1.3.0",
+]
