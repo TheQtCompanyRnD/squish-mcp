@@ -21,8 +21,8 @@ from typing import List, Optional
 # SQUISH INSTALLATION CONFIGURATION
 # =============================================================================
 
-# Squish installation directory - can be overridden via environment variable
-SQUISH_DIR = os.getenv('SQUISH_DIR', "/Applications/Froglogic/squish-9.0.0-for-qt68x/bin")
+# Squish installation directory - can be overridden via environment variable - SET THIS VARIABLE
+SQUISH_DIR = os.getenv('SQUISH_DIR', "")
 
 # Squish executable paths
 SQUISH_RUNNER = os.getenv('SQUISH_RUNNER', f"{SQUISH_DIR}/squishrunner")
@@ -40,9 +40,9 @@ DEFAULT_PORT = "4322"
 # GLOBAL SCRIPT DIRECTORIES
 # =============================================================================
 
-# Global script directories - can be configured per project
+# Global script directories - can be configured per project - SET THIS VARIABLE
 GLOBAL_SCRIPT_DIRS = [
-    os.getenv('SQUISH_GLOBAL_SCRIPTS', "/Users/aaronlabomascus/dev/Qt/antares/antares/Cluster/test/antares-globals")
+    os.getenv('SQUISH_GLOBAL_SCRIPTS', "")
 ]
 
 # =============================================================================
