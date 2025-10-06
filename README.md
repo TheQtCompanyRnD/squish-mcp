@@ -78,23 +78,15 @@ vim SQUISH-RULES.yaml
 
 ## Usage
 
-### Starting the MCP Server
-
 If using a command line AI agent (such as claude code), it is recommended to launch the agent from within the directory of a Squish test suite that you want to operate within.
 
-```bash
-python squish_mcp.py
-```
-
 The server runs on stdio transport and is typically used with MCP-compatible clients like Claude Code.
-
-### Usage via LLM Prompts
 
 Once your MCP server is up and running, you are ready to start prompting! It is recommended to set the current working directory of the AI agent to be the test suite directory you wish to operate within. It is not required however, as you can still point your agent to any given directory to work within.
 
 Note: Many LLMs/ agents operating on your local system by default will request permission to run any functions that either read or write to a give file. This "interactive prompt response" behavior can be configured to operate at a lesser extent, or disabled entirely at your own risk. See your corresponding LLM/AI model documentation for further details.
 
-#### 1. Initialize Squish Context
+### 1. Initialize Squish Context
 
 **Prompt Example:**
 
@@ -110,7 +102,7 @@ This will analyze your project structure, global scripts, object references, and
 
 *For direct invocation: see `initialize_squish_context_mcp()`*
 
-#### 2. Execute a Test Case/Test Suite
+### 2. Execute a Test Case/Test Suite
 
 You can request the MCP to run either a full test suite, or individual test case.
 
@@ -127,7 +119,7 @@ The MCP will automatically determine paths, configure context variables, and exe
 
 *For direct invocation: see `run_test_mcp(test_suite_path, context, test_path, suite_or_test_case)`.*
 
-#### 3. Get Object Reference Information
+### 3. Get Object Reference Information
 
 **Prompt Examples:**
 ```
@@ -140,7 +132,7 @@ This provides comprehensive analysis of how objects are stored (names.py files, 
 
 *For direct invocation: see `get_squish_contexts()` for comprehensive analysis or `analyze_object_map_structure_mcp()` for object-specific details.*
 
-#### 4. Generate Page Object Style Object Map
+### 4. Generate Page Object Style Object Map
 DISCLAIMER: This feature is currently only supported for Qt/QML applications. Application's produced with different GUI toolkits have different property:value combinations used in the object references stored in Squish's object map files. As such, the parsing implemented in this feature is focused solely on understanding how to narrow down all the elements in an application object tree to add only the "functional layers".
 
 You can request the MCP to generate custom object map files in accordance with any custom syntax or structure currently used in your object references. If you store object references in more than one file, or have custom locater functions regularly used to capture dynamic elements, the MCP can take those into consideration. The one required element to feed into the MCP is an 'object snapshot' as produced from the saveObjectSnapshot() Squish function. 
@@ -166,7 +158,7 @@ The MCP will analyze your existing patterns and generate consistent object refer
 
 *For direct invocation: see `generate_page_objects_from_snapshot_mcp(xml_file_path, page_name)`.*
 
-#### 5. Generate a New Test Case via Prompt
+### 5. Generate a New Test Case via Prompt
 Prompts for Test Case generation require a particular balance to get "just right". If your prompt doesn't contain enough detail, the AI model has to make a lot of guesses and assumptions which could yield more innaccuracies. If you have to provide too much information and find you're writing a novel to describe your test case, well maybe it would have been more efficient to script it yourself! It may take some trial and error to find the "goldilocks" level of prompting. Certainly play around with different levels of prompts for the same request and compare & contrast the outputs to find what you're happy with.
 
 Additionally, you could ask your AI agent to read in from some existing manual test cases (from a CSV, XLSX, DOCX, etc.). From there it should know to use this MCP function to generate the resulting script with.
@@ -182,7 +174,7 @@ The MCP will analyze existing test patterns and generate consistent, properly st
 
 *For direct invocation: see `create_test_case_mcp(suite_path, test_case_name, test_content, update_suite_conf)` or use `generate_test_template_mcp(test_case_name, suite_path, test_description)` for template generation.*
 
-#### 6. Generate a BDD Test Case
+### 6. Generate a BDD Test Case
 Squish has it's own implementation and structure for running BDD tests. The MCP is aware of this structure and can produce both feature files and step function implementations.
 
 **Prompt Examples:**
