@@ -141,11 +141,19 @@ This provides comprehensive analysis of how objects are stored (names.py files, 
 *For direct invocation: see `get_squish_contexts()` for comprehensive analysis or `analyze_object_map_structure_mcp()` for object-specific details.*
 
 #### 4. Generate Page Object Style Object Map
+DISCLAIMER: This feature is currently only supported for Qt/QML applications. Application's produced with different GUI toolkits have different property:value combinations used in the object references stored in Squish's object map files. As such, the parsing implemented in this feature is focused solely on understanding how to narrow down all the elements in an application object tree to add only the "functional layers".
+
 You can request the MCP to generate custom object map files in accordance with any custom syntax or structure currently used in your object references. If you store object references in more than one file, or have custom locater functions regularly used to capture dynamic elements, the MCP can take those into consideration. The one required element to feed into the MCP is an 'object snapshot' as produced from the saveObjectSnapshot() Squish function. 
 
 The general idea is to produce one 'object snapshot' xml file per "page" in the application that you want to create object references for. So before requesting the MCP to perform this function, create a test script similar to that of the `scripting/SAMPLE-OBJECT-GENERATION-test.py`. For each page, you don't need to select the top-most application object, but select the lowest level object corresponding to the page and all its contents inside. 
 
 Once the object snapshot XML files exist, you can request your LLM similar to the below prompts to generate one object map per .xml file.
+
+Modifications to the implementation of this feature may likely be required. It is highly likely that some objects of interest were not captured.
+
+The general 'object filtering process' used by the MCP is as follows:
+1. An object snapshot of a page in the application (or the whole application) is programmatically reviewed and all objects of type specified in the variable `skip_types` in `scripting/parse_object_snapshot.py` are excluded. Additionally, duplicate objects (i.e. objects without enough uniquely identifying information) are eliminated. The aforementioned script produces a python file, very similar to the conventional `names.py` used by Squish.
+2. This filtered object map is then consumed by the MCP. The MCP takes into consideration how object references are currently captured in your active test suite. Whether that is largely using the existing names.py file, or separating into page-specific object maps, or using classes/functions to wrap object symbolic names in other features. It will attempt to adapt the simple names.py-like implementation into whatever design pattern(s) are actively in place in the active test suite if they exist. You can follow the logic starting at `generate_page_objects_from_snapshot_mcp()` to see how this occurs.
 
 **Prompt Examples:**
 ```
