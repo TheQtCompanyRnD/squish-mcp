@@ -1,0 +1,43 @@
+# MCP Example Rule Structions
+# context:
+#   domain: "software_development"
+#   last_updated: "2024-08-19"
+
+# memories:
+#   user_preferences:
+#     coding_style: "functional_programming"
+#     preferred_languages: ["python", "javascript"]
+#     testing_framework: "pytest"
+    
+#   project_context:
+#     current_project: "web_scraper"
+#     architecture: "microservices"
+#     database: "postgresql"
+    
+#   learned_patterns:
+#     - pattern: "user often asks for error handling examples"
+#       context: "provide try/catch blocks by default"
+#     - pattern: "prefers detailed docstrings"
+#       context: "include comprehensive documentation"
+      
+#   facts:
+#     - "User works in EST timezone"
+#     - "Team uses conventional commits"
+#     - "Deployment happens on Fridays"
+
+memories:
+  requested_patterns:
+    - pattern: "user asks for a screenshot verification or screenshot VP during creation or modification of a Squish test"
+      context: "Use the verify_image() function found in either global script directories files or shared test suite resources of the Squish test suite"
+    - pattern: "User asks for a screenshot verification point or screenshot VP of an object in a test script"
+      context: "Do NOT use the log_object_screenshot() utility function. Use verify_image() only for VPs"
+    - pattern: "user asks for a new test case to be generated"
+      context: "If a setup function is used in other test cases, ensure the same setup function is being used in a appropriate format in the new test"
+    - pattern: "user asks for modifications to a test"
+      context: "Focus all modifications only on the test.py file. Only modify helper scripts if user explicitly asks."
+    - pattern: "user asks for a BDD test to be created"
+      context: "Create proper BDD structure with test.py containing source(findFile('scripts', 'python/bdd.py')), setupHooks('../shared/scripts/bdd_hooks.py'), collectStepDefinitions('./steps', '../shared/steps'), main() with testSettings.throwOnFailure = True, and runFeatureFile('test.feature'). Also create test.feature with Gherkin format including Background and @test Scenario sections."
+    - pattern: "Any time you, the LLM/ the AI agent, aren't sure of what to do in a test script"
+      context: "Add a 'TODO: *' comment where you explain what needs to be done in a missing area."
+    - pattern: "Any time you, the LLM/ AI agent, are creating or modifying a BDD step function where a varialbe input is requested or required"
+      context: "In the step function decorator, the variable input shall be denoted with '|any|', the word any between pipe operators"
