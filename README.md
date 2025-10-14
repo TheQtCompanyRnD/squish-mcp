@@ -69,7 +69,7 @@ vim SQUISH-RULES.yaml
         "SquishMCP": {
             "command": "<PATH TO PYTHON ENV/BIN>/.venv/bin/python",
             "args": [
-                "<PATH TO THE REPOSITORY CLONE>/squish-mcp/squishrunnermcp.py"
+                "<PATH TO THE REPOSITORY CLONE>/squish-mcp/squish_mcp.py"
             ]
         }
     }
