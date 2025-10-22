@@ -16,7 +16,7 @@ Do not use with Python 2.x - it will cause syntax errors.
 # from mcp.server.fastmcp import FastMCP
 from fastmcp import FastMCP
 import os
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 # Import execution modules
 from execution.squish_test_execution import (
@@ -206,17 +206,257 @@ def update_suite_configuration(suite_path: str, test_case_name: str) -> Dict:
 # =============================================================================
 
 @mcp.tool()
+def get_test_format_context_mcp() -> Dict:
+    """
+    Get test format analysis and patterns from existing Squish test suites.
+    
+    This analyzes existing test script formats, patterns, and whether they use 
+    native Squish API vs helper functions from global scripts.
+    
+    Returns:
+        Dict with test format analysis including common imports, test patterns,
+        and code structure conventions used in the project.
+    """
+    return get_test_format_context()
+
+@mcp.tool()
+def get_object_reference_context_mcp() -> Dict:
+    """
+    Get object reference locations and usage patterns.
+    
+    This analyzes where and how object references are stored in the test suite,
+    including names.py files, global script object files, and usage patterns.
+    
+    Returns:
+        Dict with object reference analysis including storage locations,
+        naming conventions, and access patterns.
+    """
+    return get_object_reference_context()
+
+@mcp.tool()
+def get_global_script_context_mcp() -> Dict:
+    """
+    Get global script utilities and functions analysis.
+    
+    This analyzes all files in global script directories to understand available
+    functions, classes, and utilities that can be used in Squish tests.
+    
+    Returns:
+        Dict with global script analysis including available utilities,
+        functions, and helper classes.
+    """
+    return get_global_script_context()
+
+@mcp.tool()
+def get_squish_api_context_mcp() -> Dict:
+    """
+    Get Squish API documentation and function reference.
+    
+    This provides access to cached Squish API documentation including
+    available functions, examples, and usage patterns.
+    
+    Returns:
+        Dict with Squish API documentation and function references.
+    """
+    return get_squish_api_context()
+
+@mcp.tool()
+def get_squish_rules_context_mcp() -> Dict:
+    """
+    Get project-specific rules and patterns from SQUISH-RULES.yaml.
+    
+    This provides project-specific conventions, patterns, and rules
+    that should be followed when generating or modifying test code.
+    
+    Returns:
+        Dict with project-specific rules and patterns.
+    """
+    return get_squish_rules_context()
+
+@mcp.tool()
+def get_bdd_context_mcp() -> Dict:
+    """
+    Get BDD test structure and step definitions.
+    
+    This analyzes BDD test structure including feature files, step definitions,
+    and relationships between features and step implementations.
+    
+    Returns:
+        Dict with BDD structure analysis and step definition mappings.
+    """
+    return get_bdd_context()
+
+@mcp.tool()
+def get_bdd_documentation_context_mcp() -> Dict:
+    """
+    Get official Squish BDD documentation and implementation details.
+    
+    This provides comprehensive Squish BDD documentation including
+    step definition patterns, implementation examples, and best practices.
+    
+    Returns:
+        Dict with Squish BDD documentation and implementation guidance.
+    """
+    return get_bdd_documentation_context()
+
+@mcp.tool()
+def get_squish_contexts_summary() -> Dict:
+    """
+    Get a summary of all available Squish contexts without the full data.
+    
+    This provides an overview of what context data is available and loaded,
+    along with key statistics, without transferring the full context payloads.
+    Use the individual context tools to get specific detailed information.
+    
+    Returns:
+        Dict with context availability summary and key statistics.
+    """
+    # Get all context data for summary generation only
+    test_format_context = get_test_format_context()
+    object_reference_context = get_object_reference_context()
+    global_script_context = get_global_script_context()
+    squish_api_context = get_squish_api_context()
+    squish_rules_context = get_squish_rules_context()
+    bdd_context = get_bdd_context()
+    bdd_documentation_context = get_bdd_documentation_context()
+    
+    # Generate context availability and statistics
+    context_status = {
+        "test_format": {
+            "status": test_format_context.get("status", 1),
+            "available": test_format_context.get("status") == 0
+        },
+        "object_reference": {
+            "status": object_reference_context.get("status", 1),
+            "available": object_reference_context.get("status") == 0
+        },
+        "global_script": {
+            "status": global_script_context.get("status", 1),
+            "available": global_script_context.get("status") == 0
+        },
+        "squish_api": {
+            "status": squish_api_context.get("status", 1),
+            "available": squish_api_context.get("status") == 0
+        },
+        "squish_rules": {
+            "status": squish_rules_context.get("status", 1),
+            "available": squish_rules_context.get("status") == 0
+        },
+        "bdd": {
+            "status": bdd_context.get("status", 1),
+            "available": bdd_context.get("status") == 0
+        },
+        "bdd_documentation": {
+            "status": bdd_documentation_context.get("status", 1),
+            "available": bdd_documentation_context.get("status") == 0
+        }
+    }
+    
+    # Generate summary statistics
+    summary_parts = []
+    
+    if test_format_context.get("status") == 0:
+        analysis = test_format_context["analysis"]
+        test_suites = len(analysis.get("test_suites", []))
+        total_cases = sum(len(suite.get("test_cases", [])) for suite in analysis.get("test_suites", []))
+        summary_parts.append(f"Found {test_suites} test suites with {total_cases} test cases")
+        context_status["test_format"]["statistics"] = {
+            "test_suites": test_suites,
+            "total_test_cases": total_cases
+        }
+    
+    if object_reference_context.get("status") == 0:
+        locations = object_reference_context["analysis"]["locations"]
+        obj_files = len(locations.get("global_object_files", []) + locations.get("suite_names_files", []))
+        summary_parts.append(f"Analyzed {obj_files} object reference files")
+        context_status["object_reference"]["statistics"] = {
+            "object_files": obj_files,
+            "global_files": len(locations.get("global_object_files", [])),
+            "suite_names_files": len(locations.get("suite_names_files", []))
+        }
+    
+    if global_script_context.get("status") == 0:
+        analysis = global_script_context["analysis"]
+        script_files = len(analysis.get("files", []))
+        summary_parts.append(f"Found {script_files} global script utilities")
+        context_status["global_script"]["statistics"] = {
+            "script_files": script_files,
+            "directories": len(analysis.get("directories", []))
+        }
+    
+    if squish_api_context.get("status") == 0:
+        api_info = squish_api_context.get("api_info", {})
+        functions = len(api_info.get("functions", []))
+        summary_parts.append(f"Loaded {functions} API function references")
+        context_status["squish_api"]["statistics"] = {
+            "api_functions": functions
+        }
+    
+    if squish_rules_context.get("status") == 0:
+        patterns = squish_rules_context["rules"].get("memories", {}).get("requested_patterns", [])
+        summary_parts.append(f"Loaded {len(patterns)} project-specific patterns")
+        context_status["squish_rules"]["statistics"] = {
+            "patterns": len(patterns)
+        }
+    
+    if bdd_context.get("status") == 0:
+        bdd_summary = bdd_context.get("bdd_summary", {})
+        if bdd_summary.get("has_bdd_tests"):
+            feature_files = len(bdd_summary.get("feature_files", []))
+            summary_parts.append(f"Detected BDD structure with {feature_files} feature files")
+            context_status["bdd"]["statistics"] = {
+                "has_bdd_tests": True,
+                "feature_files": feature_files,
+                "bdd_suites": len(bdd_summary.get("bdd_suites", []))
+            }
+        else:
+            summary_parts.append("No BDD test structure found")
+            context_status["bdd"]["statistics"] = {"has_bdd_tests": False}
+    
+    if bdd_documentation_context.get("status") == 0:
+        bdd_doc_info = bdd_documentation_context.get("bdd_documentation", {})
+        step_patterns = len(bdd_doc_info.get("step_definition_patterns", []))
+        examples = len(bdd_doc_info.get("implementation_examples", []))
+        summary_parts.append(f"Squish BDD documentation loaded with {step_patterns} step patterns and {examples} examples")
+        context_status["bdd_documentation"]["statistics"] = {
+            "step_patterns": step_patterns,
+            "examples": examples
+        }
+    else:
+        summary_parts.append("Squish BDD documentation not available")
+    
+    summary = "Squish Context Summary:\n" + "\n".join(f"- {part}" for part in summary_parts)
+    
+    return {
+        "summary": summary,
+        "context_status": context_status,
+        "available_tools": [
+            "get_test_format_context_mcp",
+            "get_object_reference_context_mcp", 
+            "get_global_script_context_mcp",
+            "get_squish_api_context_mcp",
+            "get_squish_rules_context_mcp",
+            "get_bdd_context_mcp",
+            "get_bdd_documentation_context_mcp"
+        ],
+        "usage_note": "Use individual context tools to get detailed information for specific areas."
+    }
+
+@mcp.tool()
 def get_squish_contexts() -> Dict:
     """
-    Get comprehensive Squish test context including all analysis data needed for test development.
+    Get comprehensive Squish test context summary.
     
-    This master function provides complete context in one call. Show these as TODOs when called, including:
-    1. Test format analysis - existing test patterns and API usage
-    2. Object reference analysis - where objects are stored and usage patterns
-    3. Global script analysis - available utilities and functions
-    4. Squish API documentation - available functions and examples
-    5. Project-specific rules - patterns and conventions from SQUISH-RULES.yaml
-    6. BDD test context - feature files, step definitions, and BDD structure
+    **DEPRECATED**: This function now returns a summary only to reduce response size.
+    For detailed context data, use the individual context tools:
+    
+    - get_test_format_context_mcp() - Test patterns and API usage
+    - get_object_reference_context_mcp() - Object locations and patterns  
+    - get_global_script_context_mcp() - Global script utilities and functions
+    - get_squish_api_context_mcp() - Squish API documentation and examples
+    - get_squish_rules_context_mcp() - Project-specific rules and patterns
+    - get_bdd_context_mcp() - BDD test structure and step definitions
+    - get_bdd_documentation_context_mcp() - Official Squish BDD documentation
     
     IMPORTANT FOR LLM AGENTS - OBJECT REFERENCE BEST PRACTICES:
     
@@ -243,83 +483,30 @@ def get_squish_contexts() -> Dict:
     - Consistency is key for maintainable test suites
     
     Returns:
-        Dict with the following structure:
-        {
-            "test_format_context": Dict,     # Test format analysis and patterns
-            "object_reference_context": Dict, # Object reference locations and patterns  
-            "global_script_context": Dict,   # Global script utilities and functions
-            "squish_api_context": Dict,      # Squish API documentation and examples
-            "squish_rules_context": Dict,    # Project-specific rules and patterns
-            "bdd_context": Dict,             # BDD test structure and step definitions
-            "bdd_documentation_context": Dict, # Official Squish BDD documentation and implementation details
-            "summary": str                   # Overall summary of available context
-        }
+        Dict with summary information and available context tools.
+        Use individual context tools for detailed data.
     """
-
-    # Get all context data
-    test_format_context = get_test_format_context()
-    object_reference_context = get_object_reference_context()
-    global_script_context = get_global_script_context()
-    squish_api_context = get_squish_api_context()
-    squish_rules_context = get_squish_rules_context()
-    bdd_context = get_bdd_context()
-    bdd_documentation_context = get_bdd_documentation_context()
+    # Delegate to the summary function to maintain backwards compatibility
+    # while reducing response size
+    summary_result = get_squish_contexts_summary()
     
-    # Generate overall summary
-    summary_parts = []
-    
-    if test_format_context.get("status") == 0:
-        analysis = test_format_context["analysis"]
-        test_suites = len(analysis.get("test_suites", []))
-        total_cases = sum(len(suite.get("test_cases", [])) for suite in analysis.get("test_suites", []))
-        summary_parts.append(f"Found {test_suites} test suites with {total_cases} test cases")
-    
-    if object_reference_context.get("status") == 0:
-        locations = object_reference_context["analysis"]["locations"]
-        obj_files = len(locations.get("global_object_files", []) + locations.get("suite_names_files", []))
-        summary_parts.append(f"Analyzed {obj_files} object reference files")
-    
-    if global_script_context.get("status") == 0:
-        analysis = global_script_context["analysis"]
-        script_files = len(analysis.get("files", []))
-        summary_parts.append(f"Found {script_files} global script utilities")
-    
-    if squish_api_context.get("status") == 0:
-        api_info = squish_api_context.get("api_info", {})
-        functions = len(api_info.get("functions", []))
-        summary_parts.append(f"Loaded {functions} API function references")
-    
-    if squish_rules_context.get("status") == 0:
-        patterns = squish_rules_context["rules"].get("memories", {}).get("requested_patterns", [])
-        summary_parts.append(f"Loaded {len(patterns)} project-specific patterns")
-    
-    if bdd_context.get("status") == 0:
-        bdd_summary = bdd_context.get("bdd_summary", {})
-        if bdd_summary.get("has_bdd_tests"):
-            summary_parts.append(f"Detected BDD structure with {len(bdd_summary.get('feature_files', []))} feature files")
-        else:
-            summary_parts.append("No BDD test structure found")
-    
-    if bdd_documentation_context.get("status") == 0:
-        bdd_doc_info = bdd_documentation_context.get("bdd_documentation", {})
-        step_patterns = len(bdd_doc_info.get("step_definition_patterns", []))
-        examples = len(bdd_doc_info.get("implementation_examples", []))
-        summary_parts.append(f"Squish BDD documentation loaded with {step_patterns} step patterns and {examples} examples")
-    else:
-        summary_parts.append("Squish BDD documentation not available")
-    
-    summary = "Squish Context Summary:\n" + "\n".join(f"- {part}" for part in summary_parts)
-    
-    return {
-        "test_format_context": test_format_context,
-        "object_reference_context": object_reference_context,
-        "global_script_context": global_script_context,
-        "squish_api_context": squish_api_context,
-        "squish_rules_context": squish_rules_context,
-        "bdd_context": bdd_context,
-        "bdd_documentation_context": bdd_documentation_context,
-        "summary": summary
+    # Add the best practices documentation to the summary result
+    summary_result["best_practices"] = {
+        "object_reference_priority": [
+            "Global script object files (PREFERRED)",
+            "Other suite resource files", 
+            "names.py files in test suite directories"
+        ],
+        "critical_rules": [
+            "Follow existing object reference patterns discovered in the analysis",
+            "PRIORITIZE using global script objects over names.py when possible",
+            "Project-specific rules from SQUISH-RULES.yaml take precedence over general patterns",
+            "Always check all context sections before creating test cases",
+            "Consistency is key for maintainable test suites"
+        ]
     }
+    
+    return summary_result
 
 # Maintain backwards compatibility with original tool name
 @mcp.tool()
@@ -481,7 +668,7 @@ def generate_page_objects_from_snapshot_mcp(xml_file_path: str, page_name: str) 
 
 
 @mcp.tool()
-def initialize_squish_context_mcp() -> Dict:
+def initialize_squish_context_mcp(test_suite_context: Optional[Dict] = None) -> Dict:
     """
     Initialize Squish environment and context caches.
     
@@ -493,11 +680,26 @@ def initialize_squish_context_mcp() -> Dict:
     - Project-specific rules from SQUISH-RULES.yaml
     - BDD context and documentation
     
+    Args:
+        test_suite_context: Optional dict containing test suite path information for context analysis.
+                          Can contain the following keys:
+                          - 'base_path': Absolute path to the base directory containing test suites.
+                                       This should be the parent directory that contains multiple 'suite_*' directories.
+                                       Example: "/Users/yourname/projects/addressbook"
+                          - 'test_suite_path': Absolute path to a specific test suite directory or test file.
+                                             If provided, the base directory will be derived from this path.
+                                             Example: "/Users/yourname/projects/addressbook/suite_py" or
+                                                     "/Users/yourname/projects/addressbook/suite_py/tst_general/test.py"
+                          
+                          If neither is provided, the current working directory will be used.
+                          If both are provided, 'base_path' takes precedence.
+
+
     Returns:
         Dict with initialization status and summary
     """
     try:
-        cache_data = initialize_squish_environment_and_contexts()
+        cache_data = initialize_squish_environment_and_contexts(test_suite_context)
         
         # Generate summary from cache data
         summary_parts = []

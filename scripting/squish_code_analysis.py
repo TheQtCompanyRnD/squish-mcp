@@ -122,7 +122,7 @@ def generate_test_template(test_case_name: str, suite_path: str, test_descriptio
     Args:
         test_case_name: Name of the test case
         suite_path: Path to the test suite
-        test_description: Optional description of what the test should do
+        test_description:  description of what the test should do
         
     Returns:
         Dict with generated template and metadata

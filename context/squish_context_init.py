@@ -41,12 +41,27 @@ _bdd_context_cache: Optional[Dict] = None
 _bdd_documentation_cache: Optional[Dict] = None
 _cache_initialized = False
 
-def analyze_test_script_formats() -> Dict:
+def analyze_test_script_formats(test_suite_context: Optional[Dict] = None) -> Dict:
     """
     Analyze existing Squish test suites in the repository to understand test script formats,
     patterns, and whether they use native Squish API vs helper functions from global scripts.
+    
+    Args:
+        test_suite_context: Optional dict containing test suite path information.
+                          Can contain 'test_suite_path' or 'base_path' keys.
     """
-    current_dir = os.getcwd()
+    # Determine the base directory to search from
+    if test_suite_context and 'base_path' in test_suite_context:
+        current_dir = test_suite_context['base_path']
+    elif test_suite_context and 'test_suite_path' in test_suite_context:
+        # If a specific test suite path is provided, use its parent directory
+        suite_path = test_suite_context['test_suite_path']
+        current_dir = os.path.dirname(suite_path) if os.path.isfile(suite_path) else os.path.dirname(suite_path) if suite_path.endswith(('.py', '.feature')) else suite_path
+        # Go up until we find a directory that might contain multiple suites
+        while current_dir and os.path.basename(current_dir).startswith('suite_'):
+            current_dir = os.path.dirname(current_dir)
+    else:
+        current_dir = os.getcwd()
     test_suites = []
     analysis = {
         "test_suites": [],
@@ -325,12 +340,26 @@ def extract_bdd_context() -> Dict:
     
     return _bdd_context_cache
 
-def analyze_object_references() -> Dict:
+def analyze_object_references(test_suite_context: Optional[Dict] = None) -> Dict:
     """
     Analyze where object references are stored - names.py files in test suites,
     object files in global scripts, or other shared locations.
+    
+    Args:
+        test_suite_context: Optional dict containing test suite path information.
     """
-    current_dir = os.getcwd()
+    # Determine the base directory to search from
+    if test_suite_context and 'base_path' in test_suite_context:
+        current_dir = test_suite_context['base_path']
+    elif test_suite_context and 'test_suite_path' in test_suite_context:
+        # If a specific test suite path is provided, use its parent directory
+        suite_path = test_suite_context['test_suite_path']
+        current_dir = os.path.dirname(suite_path) if os.path.isfile(suite_path) else os.path.dirname(suite_path) if suite_path.endswith(('.py', '.feature')) else suite_path
+        # Go up until we find a directory that might contain multiple suites
+        while current_dir and os.path.basename(current_dir).startswith('suite_'):
+            current_dir = os.path.dirname(current_dir)
+    else:
+        current_dir = os.getcwd()
     object_locations = {
         "suite_names_files": [],
         "global_object_files": [],
@@ -553,7 +582,7 @@ def fetch_squish_bdd_documentation() -> Dict:
     url = "https://doc.qt.io/squish/behavior-driven-testing.html"
     
     try:
-        with urllib.request.urlopen(url, timeout=10) as response:
+        with urllib.request.urlopen(url, timeout=5) as response:
             html_content = response.read().decode('utf-8')
         
         # Parse BDD-specific information from the documentation
@@ -727,7 +756,7 @@ Available utilities can be imported and used in Squish test scripts."""
             "analysis": {}
         }
 
-def initialize_squish_environment_and_contexts():
+def initialize_squish_environment_and_contexts(test_suite_context: Optional[Dict] = None):
     """
     Show all below options as TODOs, while thinking.
     Initialize comprehensive Squish test context by analyzing:
@@ -738,10 +767,20 @@ def initialize_squish_environment_and_contexts():
     5. Project-specific rules and patterns from SQUISH-RULES.yaml
     This is called once per session to provide complete context for the LLM agent.
     """
-    global _global_scripts_cache, _test_format_cache, _object_refs_cache, _squish_api_cache, _squish_rules_cache, _bdd_context_cache, _cache_initialized
+    global _global_scripts_cache, _test_format_cache, _object_refs_cache, _squish_api_cache, _squish_rules_cache, _bdd_context_cache, _bdd_documentation_cache, _cache_initialized
     
     if _cache_initialized:
-        return
+        # Return cached data if already initialized
+        return {
+            "global_scripts_cache": _global_scripts_cache,
+            "test_format_cache": _test_format_cache,
+            "object_refs_cache": _object_refs_cache,
+            "squish_api_cache": _squish_api_cache,
+            "squish_rules_cache": _squish_rules_cache,
+            "bdd_context_cache": _bdd_context_cache,
+            "bdd_documentation_cache": _bdd_documentation_cache,
+            "cache_initialized": _cache_initialized
+        }
     
     print("=== SQUISH MCP SERVER COMPREHENSIVE INITIALIZATION ===", file=sys.stderr)
     print("Gathering complete Squish test context for LLM agent...", file=sys.stderr)
@@ -767,7 +806,7 @@ def initialize_squish_environment_and_contexts():
     print("", file=sys.stderr)
     print("2. Analyzing existing test script formats and patterns...", file=sys.stderr)
     try:
-        test_format_result = analyze_test_script_formats()
+        test_format_result = analyze_test_script_formats(test_suite_context)
         _test_format_cache = test_format_result
         
         if test_format_result["status"] == 0:
@@ -796,7 +835,7 @@ def initialize_squish_environment_and_contexts():
     print("", file=sys.stderr)
     print("3. Analyzing object reference patterns and locations...", file=sys.stderr)
     try:
-        object_refs_result = analyze_object_references()
+        object_refs_result = analyze_object_references(test_suite_context)
         _object_refs_cache = object_refs_result
         
         if object_refs_result["status"] == 0:
