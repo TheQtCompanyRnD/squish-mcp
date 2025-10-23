@@ -21,7 +21,7 @@ from typing import List, Optional
 # SQUISH INSTALLATION CONFIGURATION
 # =============================================================================
 
-# Squish installation directory - can be overridden via environment variable - SET THIS VARIABLE
+# Squish installation bin/ directory - can be overridden via environment variable - SET THIS VARIABLE
 SQUISH_DIR = os.getenv('SQUISH_DIR', "")
 
 # Squish executable paths

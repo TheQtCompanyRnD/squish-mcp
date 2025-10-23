@@ -13,7 +13,7 @@ The contents in this MCP are written from a general perspective. It is encourage
 ### Key Features
 
 - [**Comprehensive Context Analysis**](#1-initialize-squish-context)
-- [**Page Object Reference Generation**](#4-generate-page-object-style-object-map)
+- [**Page Object Reference Generation**](#4-generate-page-object-style-object-map) (*This is only for QML-based UI Applications. Must be adapted for others*)
 - [**Contextually-aware Test Script Generation & Modification**](#5-generate-a-new-test-case-via-prompt)
 - [**Test Execution**](#2-execute-a-test-casetest-suite)
 - [**BDD Test Case Support**](#6-generate-a-bdd-test-case)
@@ -62,17 +62,35 @@ Contained within this file are several environment variables the inform the MCP 
 vim SQUISH-RULES.yaml
 ```
 
-5. Configure the MCP for use in your desired LLM. For example, for [Claude Code MCP configuration see here](https://docs.claude.com/en/docs/claude-code/mcp).
+5. Configure the MCP for use in your desired LLM. 
+
+For example, for [Claude Code MCP configuration see here](https://docs.claude.com/en/docs/claude-code/mcp).
 ```json
 {
     "mcpServers": {
         "SquishMCP": {
-            "command": "<PATH TO PYTHON ENV/BIN>/.venv/bin/python",
+            "command": "<PATH TO PYTHON ENV/BIN>/python",
             "args": [
                 "<PATH TO THE REPOSITORY CLONE>/squish-mcp/squish_mcp.py"
             ]
         }
     }
+}
+
+Or for VScode, [see MCP configuration here](https://code.visualstudio.com/docs/copilot/customization/mcp-servers).
+For example, on Windows modify C:\Users\<user>\AppData\Roaming\Code\User\mcp.json
+```json
+{
+	"servers": {
+		"SquishMCP": {
+			"type": "stdio",
+			"command": "C:\\path\\to\\python.exe",
+			"args": [
+				"C:\\path\\to\\squish-mcp\\squish_mcp.py"
+			]
+		}
+	},
+	"inputs": []
 }
 ```
 
@@ -133,7 +151,7 @@ This provides comprehensive analysis of how objects are stored (names.py files, 
 *For direct invocation: see `get_squish_contexts()` for comprehensive analysis or `analyze_object_map_structure_mcp()` for object-specific details.*
 
 ### 4. Generate Page Object Style Object Map
-DISCLAIMER: This feature is currently only supported for Qt/QML applications. Application's produced with different GUI toolkits have different property:value combinations used in the object references stored in Squish's object map files. As such, the parsing implemented in this feature is focused solely on understanding how to narrow down all the elements in an application object tree to add only the "functional layers".
+DISCLAIMER: This feature is currently only supported for Qt/QML applications. Applications produced with different GUI toolkits have different property:value combinations used in the object references stored in Squish's object map files. As such, the parsing implemented in this feature is focused solely on understanding how to narrow down all the elements in an application object tree to add only the "functional layers". 
 
 You can request the MCP to generate custom object map files in accordance with any custom syntax or structure currently used in your object references. If you store object references in more than one file, or have custom locater functions regularly used to capture dynamic elements, the MCP can take those into consideration. The one required element to feed into the MCP is an 'object snapshot' as produced from the saveObjectSnapshot() Squish function. 
 
@@ -223,9 +241,11 @@ memories:
 
 <img src="squishmcp.png" width="1062" height="823">
 
-* The AI assistant (e.g. Claude Desktop) runs both the MCP client and the MCP Server
-* Command line tool `squishrunner` is wrapped by `squishrunnermcp.py`
-* Application under test (AUT) is invoked by `squishserver` 
+## Roadmap / Expansion Ideas for Improvements
+- Source code awareness: Giving a handle to the location of source code on the local machine, and access to a diff (e.g. git diff) between two versions of source code can help inform the MCP whether any updates to object references or test scripts should be made due to intended implementation changes in the source code.
+- Agentic workflow: Create a workflow function that executes any desired tests, observes the results, and identifies whether any test scripts changes are appropriate in order to preserve test functionality.
+- Expand Object Map Generation: Add capability to filter object snapshots further for different UI toolkits. Since Squish "sees" different properties for differing UI Toolkits, accomodations should be made to appropriately filter those things out depending on what type of test suite is being considered.
+- Improved RAG implementation: Currently, context is only available in the active AI agent session. Implement a Vector Database to persistantly store context embeddings for all Squish relevant information that can be read in each time a new MCP session is created. This will prevent from re-retreiving this information each time a new chat begins.
 
 ## Privacy & Security
 IMPORTANT
