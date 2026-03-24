@@ -1,0 +1,4 @@
+    @staticmethod
+    def $method_name():
+        """Return $obj_type object reference."""
+        return waitForObject({$props_str})
