@@ -1,0 +1,18 @@
+# BDD Feature file for $name
+$test_description
+Feature: $feature_description
+
+    Background:
+        Given The application launches successfully
+
+    @test
+    Scenario: $scenario_description
+        Given The title of the application is "My Application"
+        When I click the "Submit" button
+        Then I should see "Success" in the result
+        
+    @test
+    Scenario: Another example with different values
+        Given The title of the application is "Test App"
+        When I click the "Cancel" button
+        Then I should see "Cancelled" in the result
