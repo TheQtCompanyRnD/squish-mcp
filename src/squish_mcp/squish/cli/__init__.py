@@ -22,8 +22,16 @@ from squish_mcp.errors import ConfigurationException
 SQUISH_PREFIX = os.getenv("SQUISH_PREFIX", "")
 
 # Squish executable paths
-SQUISH_RUNNER = os.getenv("SQUISH_RUNNER", f"{SQUISH_PREFIX}/bin/squishrunner")
-SQUISH_SERVER = os.getenv("SQUISH_SERVER", f"{SQUISH_PREFIX}/bin/squishserver")
+if os.name == "nt":
+    default_squish_runner = Path(SQUISH_PREFIX) / "bin" / "squishrunner.exe"
+    default_squish_server = Path(SQUISH_PREFIX) / "bin" / "squishserver.exe"
+else:
+    default_squish_runner = Path(SQUISH_PREFIX) / "bin" / "squishrunner"
+    default_squish_server = Path(SQUISH_PREFIX) / "bin" / "squishserver"
+
+
+SQUISH_RUNNER = os.getenv("SQUISH_RUNNER", str(default_squish_runner))
+SQUISH_SERVER = os.getenv("SQUISH_SERVER", str(default_squish_server))
 
 # =============================================================================
 # DEFAULT NETWORK CONFIGURATION
