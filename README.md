@@ -82,59 +82,45 @@ Then configure the MCP client to connect to it:
 
 Once your MCP server is configured and recognized by your agent, you are ready to start prompting. Most of the MCP tools operate in the context of a single test suite and accept the `test_suite_path` argument (a concrete `suite_*` directory path).
 
-## Examples
+## Example Usage
 
-<details>
-<summary>Generate Test Cases</summary>
-You can ask the agent to generate Squish test cases for your application under test (AUT). If you already have some Squish test cases available, you can reference them in the prompt to match the style and improve the quality of the generated test case.
+The examples below use the addressbook application bundled with Squish, found at `<path-to-squish>/examples/qt/addressbook/addressbook`.
 
-> [!tip] Example prompt
-> I'd like to make a new test in the suite_regression test suite. Launch the application, navigate to the 'Vehicle page'. One by one select the four indicators at the top of the page, and toggle them on then off. After toggling each one, take a screenshot verification point of the 3D car model on this page. Allow a brief delay after the toggle to let an animation play out.
+### Execute a Test Case / Test Suite
 
-> [!tip] Example prompt
-> Make a new test case. After launching the application, navigate to the Media Tab. Go through all the 'tracks' in the music playlist dialog and select them. Verify each selected track on this page, is also present on the Vehicle page in the media player component there. Repeat for all tracks.
-</details>
-
-<details>
-<summary>Execute a Test Case/Test Suite</summary>
-You can ask the agent to run either a full test suite, or individual test case.
+You can ask the agent to run either a full test suite or an individual test case. The agent will automatically determine paths and execute the appropriate Squish commands.
 
 > [!tip] Example prompt
-> Run the Squish test suite in this directory
+> Run all Squish tests for the addressbook
+
+The agent will locate the relevant tests and execute all it can relate to the addressbook. It may ask for clarifications if needed.
+
+### Generate Test Cases
+
+You can ask the agent to generate Squish test cases for your application under test (AUT).
 
 > [!tip] Example prompt
-> Execute the tst_login test case
+> Create a new test suite for the addressbook application `<path-to-squish>/examples/qt/addressbook/addressbook`. Add a test to the suite that adds a contact in the addressbook and verifies its presence in the table.
 
-> [!tip] Example prompt
-> Run all Squish tests from suite_regression
+The agent will create a test case and determine how to address individual objects (e.g. the add-button) in the application. It may reach out to the user, run intermediate test cases to programmatically scan the application's objects, or use existing test cases as reference.
 
-The agent will automatically determine paths and execute the appropriate Squish commands using Squish MCP.
-</details>
+If you already have Squish test cases available, you can reference them in the prompt to match the style and improve the quality of the generated test case.
 
-<details>
-<summary>Generate Object Map</summary>
+### Generate a BDD Test Case
 
-> [!note]
-> This feature is currently only supported for Qt Widgets and QML-based applications.
-
-This tool generates an object map from a given [object snapshot](https://doc.qt.io/squish/saveobjectsnapshot-function.html) which needs to be prepared beforehand. For more accurate results, the snapshot should also contain the [real names](https://doc.qt.io/squish/glossary.html#real-name-or-realname) of objects. To enable real name generation, modify the snapshot filter file at `<path-to-squish>/etc/qt_snapshot_filter.xml` and change `<realname exclude="yes"/>` to `<realname exclude="no"/>`.
-
-> [!tip] Example prompt
-> Create object map for all snapshots in /path/to/dir. Ensure the object maps are in alignment with current object reference naming patterns and scripting conventions
-
-> [!tip] Example prompt
-> Generate object map for the snapshot file: /path/to/snapshot.xml for the LoginPage
-</details>
-
-<details>
-<summary>Generate a BDD Test Case</summary>
 Squish has its own implementation and structure for running BDD tests. Squish MCP is aware of this structure and can produce both feature files and step function implementations.
 
-> [!tip] Example prompt
-> Convert my exists tst_happy_path_1 into a BDD test
+> [!tip] Example prompt (assumes a generated test case from the prior steps)
+> Convert the test case tst_add_contact into a BDD test
 
 Squish MCP will create both `test.py` and `test.feature` files with proper BDD structure, including step definitions and feature file format.
+
+<details>
+<summary>Generate Object Map (advanced)</summary>
+
+The MCP server offers a tool to generate an object map from a given [object snapshot](https://doc.qt.io/squish/saveobjectsnapshot-function.html), which needs to be prepared beforehand. It serves as a helper for the agent when generating test cases to produce correct object references, but can also be used directly.
 </details>
+
 
 ## Configuration
 
