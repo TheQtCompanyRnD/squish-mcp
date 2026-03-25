@@ -6,9 +6,17 @@ Squish Model Context Protocol (MCP) server enables AI agents to run and create [
 
 ## Requirements
 
-- [**uv**](https://docs.astral.sh/uv/) - Python package manager, takes care of the correct Python version as well.
-- [**Squish**](https://www.qt.io/quality-assurance/squish)
-- [**GitHub Copilot**](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) - tested agent (Version => 0.40)
+- [**uv**](https://docs.astral.sh/uv/) — Python package manager (also takes care of the correct Python version)
+- [**Squish**](https://www.qt.io/quality-assurance/squish) (version 9.0 or later)
+- [**GitHub Copilot** (VS Code Extension)](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (version 0.40 or later)
+
+Tested on Windows 11, macOS, and Ubuntu 22.04.
+
+### Known Limitations
+
+- **Supported AUTs.** Only Qt Widgets and QML-based applications are currently tested.
+- **Real names should be enabled.** Without enabling [real names](https://doc.qt.io/squish/glossary.html#real-name-or-realname), the performance gains provided by Squish MCP are severely reduced. To enable real name generation, modify the snapshot filter file at `<path-to-squish>/etc/qt_snapshot_filter.xml` and change `<realname exclude="yes"/>` to `<realname exclude="no"/>`.
+- **Avoid spaces in paths.** VS Code has issues with spaces in file paths, which can cause otherwise correct configurations to fail. See [vscode#214931](https://github.com/microsoft/vscode/issues/214931).
 
 ## Installation
 
@@ -21,7 +29,7 @@ Squish Model Context Protocol (MCP) server enables AI agents to run and create [
    ```bash
    uv sync
    ```
-3. Configure the MCP server. The exact configuration entry will vary depending on your agent. For GitHub Copilot in VS Code, it may look like this (`.vscode/mcp.json` in your working directory):
+3. Configure the MCP server in VS Code. The exact configuration entry will vary depending on your agent. For GitHub Copilot in VS Code, it may look like this (`.vscode/mcp.json` in your working directory):
    ```json
    {
        "servers": {
@@ -35,7 +43,40 @@ Squish Model Context Protocol (MCP) server enables AI agents to run and create [
        }
    }
    ```
-   *MCP configuration documentation for [VS Code (GitHub Copilot)](https://code.visualstudio.com/docs/copilot/customization/mcp-servers) and [Claude Code](https://docs.claude.com/en/docs/claude-code/mcp).*
+   *MCP configuration documentation for [VS Code (GitHub Copilot)](https://code.visualstudio.com/docs/copilot/customization/mcp-servers)*
+
+<details>
+<summary>Using Other Agents</summary>
+
+While this project is primarily tested with GitHub Copilot in VS Code, MCP is an open standard and other agents should work as well. Some alternatives:
+
+- **Claude Code** — See the [Claude Code MCP documentation](https://docs.claude.com/en/docs/claude-code/mcp) for configuration details.
+- **GitHub Copilot CLI** — The [Copilot CLI](https://github.com/features/copilot/cli) gives you more control over the agent from a terminal.
+</details>
+
+<details>
+<summary>Starting the Server over HTTP</summary>
+
+By default the server is started as a subprocess by the VS Code extension (stdio transport). Alternatively, you can start the server manually over HTTP for more control over the underlying process.
+
+Start the server in a terminal:
+```bash
+SQUISH_PREFIX=<path-to-squish> uv run --directory <path-to-squish-mcp> squish_mcp --transport http --host localhost --port 8000
+```
+
+Then configure the MCP client to connect to it:
+```json
+{
+    "servers": {
+        "Squish-MCP": {
+            "url": "http://localhost:8000/mcp",
+            "type": "http"
+        }
+    }
+}
+```
+</details>
+
 
 ## Usage
 
