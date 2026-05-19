@@ -1,5 +1,14 @@
 # Squish MCP Server
 
+> [!IMPORTANT]
+> This repository is outdated and no longer maintained. A **new version of Squish MCP** is available in the [Qt Customer Portal](https://account.qt.io/).
+>
+> The new version equips AI agents with the capability of directly interacting with your application under test (AUT), which enables them to generate sensible test cases for complex applications such as Qt Creator, and reduces the amount of tokens required for generating tests. See the [release announcement](https://www.qt.io/quality-assurance/blog/from-assistant-to-autonomous-tester-enable-your-ai-agent-to-understand-and-control-your-application) for more details.
+
+---
+
+# Squish MCP v0.1.0 (outdated)
+
 Squish Model Context Protocol (MCP) server enables AI agents to run and create [Squish](https://www.qt.io/quality-assurance/squish) ([documentation](https://doc.qt.io/squish/)) test scripts and test suites and analyze the results.
 
 [Demo video of Squish MCP in action](https://youtu.be/ZCPqsOfUlMA)
